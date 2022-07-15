@@ -16,15 +16,14 @@
 # These are used to personalize your new site. If you look in the HTML files,
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
-title: Hyland.Rocket.RPA.OnBase
+title: Rocket.Cologne
 email: marc.horst@hyland.com
-description: Hyland RPA Activities to connect to OnBase via UnityAPI
+description: Rocket Cologne - Tools - Helpers - More
 github_username:  marchorst
 domain: marchorst.github.io       # if you want to force HTTPS, specify the domain without the http at the start, e.g. example.com
 url: https://marchorst.github.io  # the base hostname and protocol for your site, e.g. http://example.com
-baseurl: /Hyland.Rocket.RPA.OnBase/
+baseurl: /rocket.cologne/
 # Build settings
-theme: jekyll-theme-cayman
-show_downloads: true
+show_downloads: false
 sass:
-  implementation: sass-embedded
+  sass_dir: _sass
