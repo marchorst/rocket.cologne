@@ -1,0 +1,22 @@
+---
+layout: default
+title: Welcome to Rocket.Cologne
+---
+<div class="columns">
+  {% for t in site.github.public_repositories %}
+    {% if t.name != site.github.repository_name %}
+    <div class="column is-half mb-4 mt-4">
+    <div class="hero is-cp">
+      <div class="hero-body">
+        <p class="title has-text-white">{{ t.name }}</p>
+        <div class="content">
+          <p>{{ t.description }}</p>          
+          <a href="{{ t.homepage }}" target="_blank" class="button">Docs</a>
+          <a href="{{ t.html_url }}" target="_blank" class="button">GitHub</a>
+        </div>
+      </div>
+    </div>
+    </div>
+    {% endif %}
+  {% endfor %}
+</div>

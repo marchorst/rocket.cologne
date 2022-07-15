@@ -3,6 +3,11 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap");
 @import "bulma/bulma";
 
+$tw-gradient-from: #007d9f;
+$tw-gradient-from: #54c8e8;
+$tw-gradient-to: #134500;
+$tw-gradient-to: #69bf4a;
+
 html {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   -ms-text-size-adjust: 100%;
@@ -20,30 +25,25 @@ html {
 body {
   color: #fff;
   text-align: center;
-
   font-size: 16px;
-}
-
-.page-header {
-  $tw-gradient-from: #007d9f;
-  $tw-gradient-to: #134500;
-  background-image: linear-gradient(to bottom right,$tw-gradient-from, $tw-gradient-to);
+  background-image: linear-gradient(to bottom right,darken($tw-gradient-from, 25%), darken($tw-gradient-to, 25%));
   padding: 0;
   margin: 0;
   height: 100vh;
-  header {
-      padding: 5rem 6rem;
-  
+  a {
+    color : #fff;
   }
 }
-.btn {
-  color: #ffffff;
-  border-color: #ffffff;
+
+.hero.is-cp {
+  color: #fff;
+  border: 1px solid #ffffff54;
+  height: 100%;
+  p.title.has-text-white {
+    font-size: 1.6rem;
+  }
 }
 
-.project-tagline {
-  opacity: 1;
-}
 // n is number of stars required
 @function multiple-box-shadow ($n) {
   $value: '#{random(2000)}px #{random(2000)}px #FFF';
