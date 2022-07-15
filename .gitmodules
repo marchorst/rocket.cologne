@@ -1,0 +1,6 @@
+[submodule "Hyland.Rocket.RPA.ApiHelper"]
+	path = Hyland.Rocket.RPA.ApiHelper
+	url = https://github.com/marchorst/Hyland.Rocket.RPA.ApiHelper
+[submodule "Hyland.Rocket.RPA.OnBase"]
+	path = Hyland.Rocket.RPA.OnBase
+	url = https://github.com/marchorst/Hyland.Rocket.RPA.OnBase
