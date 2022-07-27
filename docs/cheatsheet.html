@@ -1,0 +1,13 @@
+---
+layout: cheatsheet
+title: Cheatsheet
+---
+<div class="tile">
+ {% for post in site.posts %}
+    <div class="tile is-parent is-6">
+    <div class="tile is-child box ">
+        <a class="title" href="{{ post.url }}">{{post.title}}</a>
+    </div>
+    </div>
+  {% endfor %}
+</div>
