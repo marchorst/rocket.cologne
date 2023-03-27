@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  Hyland RPA: Create Error Entries from last 100 Tasks
+title: Hyland RPA: Create Error Entries from last 100 Tasks
 tags: Create Error Entries from last 100 Tasks hylandrpa
 ---
-Install/set the german keyboard layout
+Hyland RPA: Create Error Entries from last 100 Tasks
 ```powershell
 $auth = "Bearer XXXX"
 $errorUrl = 'http://heart.rpa.local/api/Errors'
