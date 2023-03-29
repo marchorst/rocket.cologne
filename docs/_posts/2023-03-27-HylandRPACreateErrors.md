@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Hyland RPA: Create Error Entries from last 100 Tasks
+title: Hyland RPA - Create Error Entries from last 100 Tasks
 tags: Create Error Entries from last 100 Tasks hylandrpa
 ---
 Hyland RPA: Create Error Entries from last 100 Tasks
