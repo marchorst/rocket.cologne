@@ -29,7 +29,7 @@ body {
   background-image: linear-gradient(to bottom right,darken($tw-gradient-from, 25%), darken($tw-gradient-to, 25%));
   padding: 0;
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   a {
     color : #fff;
   }
