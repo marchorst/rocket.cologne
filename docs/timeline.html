@@ -33,25 +33,34 @@ title: timeline
             
             // Parse the CSV file
             var csvRows = data.split('\n');
+			var header = [];
             csvRows.forEach(function(row, index) {
 			console.log(row);
-                if (index === 0 || !row) return;  // skip the header and empty rows
+                if (index === 0 || !row) {
+					header = parseCSV(row);
+					return;
+				}  // skip the header and empty rows
                 var columns = parseCSV(row)
+				var d = {}
+				columns.forEach((e, i)=>{
+					d[header[i]] = e;
+				})
+				console.log(d)
 				// Assuming the CSV format is:
                 // TaskId;RunId;ProcessVersion;Result;Remark;StartedAt;StoppedAt;AgentId;ErrorId;OutputData;RunType;process
                 // Modify indexes below as per your CSV format, especially for dates.
-                var start = new Date(columns[3]); // StartedAt
-                var end = new Date(columns[4]);   // StoppedAt
+                var start = new Date(d.startedAt); // StartedAt
+                var end = new Date(d.stoppedAt);   // StoppedAt
                 console.log(columns)
                 // Add item to timeline data
 				var color = columns[1] == "Failed" ? "red" : (columns[1] == "Error" ? "orange" : "green");
                 items.add({
-                    id: columns[0],
-                    content: columns[10], // Remark or any other column that you wish to display
+                    id: d.runId,
+                    content: d?.process+", "+d.taskId, // Remark or any other column that you wish to display
                     start: start,
                     end: end,
 					style: "background-color: "+color+";",
-                    title: `Task ${columns[5]}, ${columns[1]}, Run ${columns[0]} (${columns[2]})` // Tooltip text
+                    title: `Task ${d.taskId}, ${d.result}, Run ${d.runId} (${d.remark})` // Tooltip text
                 });
             });
 
