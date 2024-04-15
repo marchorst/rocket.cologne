@@ -4,6 +4,7 @@ title: timeline
 ---
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>CSV Timeline Chart</title>
@@ -17,73 +18,124 @@ title: timeline
         }
     </style>
 </head>
+
 <body>
 
-<input type="file" id="fileInput" accept=".csv">
-<div id="mytimeline"></div>
+    <input type="file" id="fileInput" accept=".csv">
+    <div id="mytimeline"></div>
 
-<script>
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        var reader = new FileReader();
-        
-        reader.onload = function(e) {
-            var data = e.target.result;
-            var items = new vis.DataSet();
-            
-            // Parse the CSV file
-            var csvRows = data.split('\n');
-			var header = [];
-            csvRows.forEach(function(row, index) {
-			console.log(row);
-                if (index === 0 || !row) {
-					header = parseCSV(row);
-					return;
-				}  // skip the header and empty rows
-                var columns = parseCSV(row)
-				var d = {}
-				columns.forEach((e, i)=>{
-					d[header[i]] = e;
-				})
-				console.log(d)
-				// Assuming the CSV format is:
-                // TaskId;RunId;ProcessVersion;Result;Remark;StartedAt;StoppedAt;AgentId;ErrorId;OutputData;RunType;process
-                // Modify indexes below as per your CSV format, especially for dates.
-                var start = new Date(d.startedAt); // StartedAt
-                var end = new Date(d.stoppedAt);   // StoppedAt
-                console.log(columns)
-                // Add item to timeline data
-				var color = columns[1] == "Failed" ? "red" : (columns[1] == "Error" ? "orange" : "green");
-                items.add({
-                    id: d.runId,
-                    content: d?.process+", "+d.taskId, // Remark or any other column that you wish to display
-                    start: start,
-                    end: end,
-					style: "background-color: "+color+";",
-                    title: `Task ${d.taskId}, ${d.result}, Run ${d.runId} (${d.remark})` // Tooltip text
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var data = e.target.result;
+                var items = new vis.DataSet();
+                var groupsVis = new vis.DataSet();
+                // Parse the CSV file
+                var csvRows = data.split('\n');
+                var header = [];
+                var data = [];
+                csvRows.forEach(function (row, index) {
+                    console.log(row);
+                    if (index === 0 || !row) {
+                        header = parseCSV(row);
+                        return;
+                    }  // skip the header and empty rows
+                    var columns = parseCSV(row)
+                    var d = {}
+                    columns.forEach((e, i) => {
+                        d[header[i]] = e;
+                    })
+                    console.log(d)
+                    data.push(d);
                 });
-            });
+                var groups = {
 
-            // Create a timeline
-            var container = document.getElementById('mytimeline');
-            var options = {};
-            var timeline = new vis.Timeline(container, items, options);
-        };
+                }
+                var subgroups = {
+
+                }
+                var idc = 1;
+                data.forEach(d => {
+                    if (groups[d.agentId] == undefined) groups[d.agentId] = {}
+                    groups[d.agentId][d.process] = d.process;
+                })
+
+                Object.keys(groups).forEach(s => {
+                    Object.keys(groups[s]).forEach(sg=>{
+                        var id = 9999 + idc++;
+                        subgroups[s+"-"+sg] = id;
+                        
+                        var result = {
+                            id:  id,
+                            content: sg
+                        }
+                        groupsVis.add([result]);
+                    })
+                    
+                    
+                });
+                Object.keys(groups).forEach(agentid => {
+                    var result = {
+                        id: agentid,
+                        content: "Agent " + agentid,
+                        nestedGroups: []
+                    }
+                    Object.keys(groups[agentid]).forEach(subgroupName => {
+                        result.nestedGroups.push(subgroups[agentid+"-"+subgroupName])
+                    })
+                    console.log(result)
+                    groupsVis.add([result]);
+                });
+
+                console.log(groups);
+                console.log(subgroups);
+                data.forEach(d => {
+                    // Assuming the CSV format is:
+                    // TaskId;RunId;ProcessVersion;Result;Remark;StartedAt;StoppedAt;AgentId;ErrorId;OutputData;RunType;process
+                    // Modify indexes below as per your CSV format, especially for dates.
+                    var start = new Date(d.startedAt); // StartedAt
+                    var end = new Date(d.stoppedAt);   // StoppedAt
+                    // Add item to timeline data
+                    var color = d.result == "Failed" ? "red" : (d.result == "Error" ? "orange" : "green");
+                    console.log(subgroups[d.process])
+                    items.add({
+                        id: d.runId,
+                        group: subgroups[d.agentId+"-"+d.process],
+                        content: d?.process + ", " + d.taskId, // Remark or any other column that you wish to display
+                        start: start,
+                        end: end,
+                        style: "background-color: " + color + ";",
+                        title: `Task ${d.taskId}, ${d.result}, Run ${d.runId} (${d.remark})` // Tooltip text
+                    });
+                });
+
+                // Create a timeline
+                var container = document.getElementById('mytimeline');
+                var options = {
+                    stack: false,
+                    groupOrder: 'content'  // groupOrder can be a property name or a sorting function
+                };
+                var timeline = new vis.Timeline(container, items, groupsVis, options);
+            };
 
 
-    function parseCSV(text) {
-        // Regular expression to split the line with semicolon that are inside the double quotes
-        const regex = /"([^"]*)";?/g;
-        let columns = [];
-        let match;
-        while (match = regex.exec(text)) {
-            columns.push(match[1].replace(/""/g, '"'));  // Handle escaped double quotes
-        }
-        return columns;
-    }
-        reader.readAsText(file);
-    });
-</script>
+            function parseCSV(text) {
+                // Regular expression to split the line with semicolon that are inside the double quotes
+                const regex = /"([^"]*)";?/g;
+                let columns = [];
+                let match;
+                while (match = regex.exec(text)) {
+                    columns.push(match[1].replace(/""/g, '"'));  // Handle escaped double quotes
+                }
+                return columns;
+            }
+            reader.readAsText(file);
+        });
+    </script>
 
 </body>
+
 </html>
