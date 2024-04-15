@@ -33,7 +33,8 @@ title: timeline
                 var data = JSON.parse(e.target.result);
                 var items = new vis.DataSet();
                 var groupsVis = new vis.DataSet();
-                
+                var runTaskMap = {}
+                var taskRunMap = {}
                 var groups = {
 
                 }
@@ -42,9 +43,14 @@ title: timeline
                 }
                 var idc = 1;
                 data.forEach(d => {
+                    if(taskRunMap[d.taskId] == null) taskRunMap[d.taskId] = []
+                    taskRunMap[d.taskId].push(d.runId)
+
+                    runTaskMap[d.runId] = d.taskId;
+
                     console.log(d)
-                    if (groups[d.agentId] == undefined) groups[d.agentId] = {}
-                    groups[d.agentId][d.processName] = d.processName;
+                    if (groups[d.agentDetails.instance.name] == undefined) groups[d.agentDetails.instance.name] = {}
+                    groups[d.agentDetails.instance.name][d.processName] = d.processName;
                 })
 
                 Object.keys(groups).forEach(s => {
@@ -87,11 +93,13 @@ title: timeline
                     console.log(subgroups[d.processName])
                     items.add({
                         id: d.runId,
-                        group: subgroups[d.agentId+"-"+d.processName],
-                        content: d?.processName + ", " + d.taskId, // Remark or any other column that you wish to display
+                        taskid: d.taskId,
+                        group: subgroups[d.agentDetails.instance.name+"-"+d.processName],
+                        content: d?.processName + "<br />" + d.taskId, // Remark or any other column that you wish to display
                         start: start,
                         end: end,
                         style: "background-color: " + color + ";",
+                        color: color,
                         title: `Task ${d.taskId}, ${d.result}, Run ${d.runId} (${d.remark})` // Tooltip text
                     });
                 });
@@ -102,10 +110,35 @@ title: timeline
                 var container = document.getElementById('mytimeline');
                 var options = {
                     stack: false,
+                    multiselect: false,
                     groupOrder: 'content'  // groupOrder can be a property name or a sorting function
                 };
-                var timeline = new vis.Timeline(container, items, groupsVis, options);
+                window.timeline = new vis.Timeline(container, items, groupsVis, options);
+                window.timeline.on('select', function (properties) {
+                    console.log(properties);
+
+                    var taskid = runTaskMap[properties.items[0]];
+                    var runs = taskRunMap[taskid];
+                    window.timeline.itemsData.forEach((e, i)=>{
+                        timeline.itemSet.items.u
+                        if(e.taskid == taskid) {
+                            console.log(e)
+                            timeline.itemSet.items[e.id].style = "background-color: yellow;"
+                            e.style = "background:"+stripeGenerator(e.color)
+                        } else {
+                            timeline.itemSet.items[e.id].className = "background-color: "+e.color;
+                            e.style = "background-color: "+e.color;
+                        }
+                        window.timeline.itemsData.update(e)
+                    })
+                    
+                    timeline.setItems(window.timeline.itemsData)
+                });
             };
+
+            function stripeGenerator(color) {
+                return "repeating-linear-gradient(45deg, yellow, yellow 10px, "+color+" 10px, "+color+" 20px)"
+            }
 
 
             function parseCSV(text) {
