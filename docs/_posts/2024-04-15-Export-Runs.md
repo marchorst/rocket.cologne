@@ -47,22 +47,29 @@ JSON Export
 ```
 # Define the URI and headers for the HTTP GET request
 $params = ''
-$uri = 'http://heart.rpa.local/api/Tasks' + $params
+$tasksUri = 'http://heart.rpa.local/api/Tasks' + $params
+$agentsUri = 'http://heart.rpa.local/api/Agents'
 $headers = @{
-    'Accept' = 'application/json'  # Expect JSON data from the API
+    'Accept' = 'application/json'  # Correctly expect JSON data from the API
     'Authorization' = 'Bearer xxxx'
 }
 
-# Make the HTTP GET request
-$response = Invoke-RestMethod -Uri $uri -Method Get -Headers $headers
+# Make the HTTP GET request to fetch tasks
+$taskResponse = Invoke-RestMethod -Uri $tasksUri -Method Get -Headers $headers
+# Make the HTTP GET request to fetch agents
+$agentResponse = Invoke-RestMethod -Uri $agentsUri -Method Get -Headers $headers
 
-# Check if the response contains any tasks and if they have 'runs'
-if ($response -and $response.runs) {
-    # Extract all runs from each task (Assuming multiple tasks could be returned)
-    $allRuns = $response | ForEach-Object { 
+# Check if the task response contains any tasks and if they have 'runs'
+if ($taskResponse -and $taskResponse.runs) {
+    $allRuns = $taskResponse | ForEach-Object { 
         $processName = $_.process.name
+        
         $runs = $_.runs | ForEach-Object {
+            $agentId = $_.agentId
+            $agentDetails = $agentResponse | Where-Object {$_.agentId -eq $agentId} | Select-Object -Property instance
+       
             Add-Member -InputObject $_ -MemberType NoteProperty -Name "processName" -Value $processName -Force
+            Add-Member -InputObject $_ -MemberType NoteProperty -Name "agentDetails" -Value $agentDetails -Force
             return $_
         }
         return $runs 
@@ -74,10 +81,11 @@ if ($response -and $response.runs) {
     }
 
     # Convert the 'runs' data to JSON and save to a file
-    $json = $allRuns | ConvertTo-Json
+    $json = $allRuns | ConvertTo-Json -Depth 5  # Increase the depth to ensure nested objects are properly converted
     Set-Content -Path "output.json" -Value $json
     Write-Host "Data exported to output.json successfully."
 } else {
-    Write-Host "No 'runs' data found in the response."
+    Write-Host "No 'runs' data found in the response or the response is null."
 }
+
 ```
