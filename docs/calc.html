@@ -1,0 +1,124 @@
+---
+layout: default
+title: Advanced Optimistic Processing Time Calculator
+---
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .task-type {
+            margin-bottom: 15px;
+        }
+        .task-type input {
+            width: calc(33.33% - 10px);
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+    </style>
+    <div class="container">
+        <h2>Advanced Processing Time Calculator</h2>
+        <form id="calculatorForm">
+            <div id="taskTypesContainer">
+                <div class="task-type">
+                    <label>Task Type 1:</label>
+                    <input type="number" placeholder="Amount" class="taskAmount" required>
+                    <input type="number" placeholder="Time Per Task (seconds)" class="taskTime" required>
+                </div>
+            </div>
+            <button type="button" onclick="addTaskType()">Add Task Type</button>
+            <div class="form-group">
+                <label for="inputType">Input Type:</label>
+                <select id="inputType" onchange="toggleInputFields()">
+                    <option value="bots">Number of Bots</option>
+                    <option value="time">Expected Processing Time (minutes)</option>
+                </select>
+            </div>
+            <div class="form-group" id="botsInputGroup">
+                <label for="numBots">Number of Bots:</label>
+                <input type="number" id="numBots" value="1" min="1">
+            </div>
+            <div class="form-group" id="timeInputGroup" style="display: none;">
+                <label for="expectedTime">Expected Processing Time (minutes):</label>
+                <input type="number" id="expectedTime" min="1">
+            </div>
+            <button type="button" onclick="calculateTime()">Calculate</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function addTaskType() {
+            const taskTypesContainer = document.getElementById('taskTypesContainer');
+            const taskTypeCount = taskTypesContainer.getElementsByClassName('task-type').length + 1;
+            const newTaskType = document.createElement('div');
+            newTaskType.className = 'task-type';
+            newTaskType.innerHTML = `
+                <label>Task Type ${taskTypeCount}:</label>
+                <input type="number" placeholder="Amount" class="taskAmount" required>
+                <input type="number" placeholder="Time Per Task (seconds)" class="taskTime" required>
+            `;
+            taskTypesContainer.appendChild(newTaskType);
+        }
+
+        function toggleInputFields() {
+            const inputType = document.getElementById('inputType').value;
+            document.getElementById('botsInputGroup').style.display = inputType === 'bots' ? 'block' : 'none';
+            document.getElementById('timeInputGroup').style.display = inputType === 'time' ? 'block' : 'none';
+        }
+
+        function calculateTime() {
+            const taskAmounts = document.getElementsByClassName('taskAmount');
+            const taskTimes = document.getElementsByClassName('taskTime');
+            let totalTasks = 0;
+            let totalTimeSeconds = 0;
+
+            for (let i = 0; i < taskAmounts.length; i++) {
+                const amount = parseInt(taskAmounts[i].value);
+                const timePerTask = parseInt(taskTimes[i].value);
+                totalTasks += amount;
+                totalTimeSeconds += amount * timePerTask;
+            }
+
+            const inputType = document.getElementById('inputType').value;
+            let resultText = '';
+
+            if (inputType === 'bots') {
+                const numBots = parseInt(document.getElementById('numBots').value);
+                const totalTimeMinutes = totalTimeSeconds / (numBots * 60);
+                resultText = `Total Processing Time with ${numBots} bots: ${totalTimeMinutes.toFixed(2)} minutes`;
+            } else {
+                const expectedTime = parseInt(document.getElementById('expectedTime').value);
+                const requiredBots = totalTimeSeconds / (expectedTime * 60);
+                resultText = `Number of bots required for ${expectedTime} minutes: ${Math.ceil(requiredBots)}`;
+            }
+
+            document.getElementById('result').innerText = resultText;
+        }
+    </script>
